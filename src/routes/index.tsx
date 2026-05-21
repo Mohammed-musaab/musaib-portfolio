@@ -70,6 +70,68 @@ const SKILL_CATEGORIES = [
   { label: "Data Science", skills: ["Dashboards", "PowerBI"] },
 ];
 
+function SkillButton({ cat, isOpen, onToggle }: { cat: typeof SKILL_CATEGORIES[0]; isOpen: boolean; onToggle: () => void }) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  const handleClick = () => {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + window.scrollY + 6, left: r.left + window.scrollX });
+    }
+    onToggle();
+  };
+
+  return (
+    <div>
+      <button
+        ref={btnRef}
+        onClick={handleClick}
+        className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 font-mono text-sm transition-all duration-300 hover:-translate-y-0.5"
+        style={{
+          border: isOpen ? "1px solid #8987f4" : "1px solid rgba(137,135,244,0.4)",
+          color: isOpen ? "#0d0e12" : "#8987f4",
+          background: isOpen ? "#8987f4" : "transparent",
+          boxShadow: isOpen ? "0 0 20px rgba(137,135,244,0.25)" : "none",
+        }}
+      >
+        {cat.label}
+        <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: pos.top,
+            left: pos.left,
+            zIndex: 99999,
+            minWidth: "180px",
+            borderRadius: "8px",
+            border: "1px solid #e5e7eb",
+            background: "white",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ padding: "6px 12px", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9ca3af", borderBottom: "1px solid #f3f4f6", background: "#f9fafb" }}>
+            {cat.label} Skills
+          </div>
+          {cat.skills.map((s) => (
+            <div
+              key={s}
+              style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: "14px", color: "#1f2937", cursor: "default" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
+              onMouseLeave={e => (e.currentTarget.style.background = "white")}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Hero() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -126,34 +188,12 @@ function Hero() {
             <div className="relative mt-5" ref={skillsRef} style={{ zIndex: 100 }}>
               <div className="flex flex-wrap gap-2">
                 {SKILL_CATEGORIES.map((cat) => (
-                  <div key={cat.label} style={{ position: "relative", zIndex: 100 }}>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setOpenCategory(openCategory === cat.label ? null : cat.label); }}
-                      className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 font-mono text-sm transition-all duration-300 hover:-translate-y-0.5"
-                      style={{
-                        border: openCategory === cat.label ? "1px solid #8987f4" : "1px solid rgba(137,135,244,0.4)",
-                        color: openCategory === cat.label ? "#0d0e12" : "#8987f4",
-                        background: openCategory === cat.label ? "#8987f4" : "transparent",
-                        boxShadow: openCategory === cat.label ? "0 0 20px rgba(137,135,244,0.25)" : "none",
-                      }}
-                    >
-                      {cat.label}
-                      <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openCategory === cat.label ? "rotate-180" : ""}`} />
-                    </button>
-                    {openCategory === cat.label && (
-                      <div style={{ position: "fixed", zIndex: 9999, marginTop: "4px", minWidth: "180px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", boxShadow: "0 10px 40px rgba(0,0,0,0.15)", overflow: "hidden" }}>
-                        <div style={{ padding: "6px 12px", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9ca3af", borderBottom: "1px solid #f3f4f6", background: "#f9fafb" }}>{cat.label} Skills</div>
-                        {cat.skills.map((s) => (
-                          <div key={s} style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: "14px", color: "#1f2937", cursor: "default", transition: "background 0.15s" }}
-                            onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
-                            onMouseLeave={e => (e.currentTarget.style.background = "white")}
-                          >
-                            {s}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <SkillButton
+                    key={cat.label}
+                    cat={cat}
+                    isOpen={openCategory === cat.label}
+                    onToggle={() => setOpenCategory(openCategory === cat.label ? null : cat.label)}
+                  />
                 ))}
               </div>
             </div>
