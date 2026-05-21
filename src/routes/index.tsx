@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ContactDialog } from "@/components/ContactDialog";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Github, Linkedin, FileDown, Mail, Phone, Terminal, Shield, Cloud, Database,
   Network, Lock, ArrowUpRight, ChevronRight, ChevronDown, Activity, Radar, Eye, Fingerprint,
@@ -70,81 +71,72 @@ const SKILL_CATEGORIES = [
   { label: "Data Science", skills: ["Dashboards", "PowerBI"] },
 ];
 
-function SkillButton({ cat, isOpen, onToggle }: { cat: typeof SKILL_CATEGORIES[0]; isOpen: boolean; onToggle: () => void }) {
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-
-  const handleClick = () => {
-    if (btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + window.scrollY + 6, left: r.left + window.scrollX });
-    }
-    onToggle();
-  };
-
+function SkillButton({ cat }: { cat: typeof SKILL_CATEGORIES[0] }) {
   return (
-    <div>
-      <button
-        ref={btnRef}
-        onClick={handleClick}
-        className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 font-mono text-sm transition-all duration-300 hover:-translate-y-0.5"
-        style={{
-          border: isOpen ? "1px solid #8987f4" : "1px solid rgba(137,135,244,0.4)",
-          color: isOpen ? "#0d0e12" : "#8987f4",
-          background: isOpen ? "#8987f4" : "transparent",
-          boxShadow: isOpen ? "0 0 20px rgba(137,135,244,0.25)" : "none",
-        }}
-      >
-        {cat.label}
-        <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-      </button>
-      {isOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: pos.top,
-            left: pos.left,
-            zIndex: 99999,
-            minWidth: "180px",
-            borderRadius: "8px",
-            border: "1px solid #e5e7eb",
-            background: "white",
-            boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
-            overflow: "hidden",
-          }}
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          className="
+            inline-flex items-center gap-1.5
+            rounded-md border border-primary/40
+            px-4 py-2 font-mono text-sm
+            text-primary
+            transition-all duration-300
+            hover:-translate-y-0.5
+            hover:bg-primary/10
+            outline-none
+          "
         >
-          <div style={{ padding: "6px 12px", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9ca3af", borderBottom: "1px solid #f3f4f6", background: "#f9fafb" }}>
+          {cat.label}
+          <ChevronDown className="h-3 w-3" />
+        </button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          sideOffset={8}
+          align="start"
+          className="
+            z-[9999]
+            min-w-[200px]
+            overflow-hidden
+            rounded-xl
+            border border-border
+            bg-background
+            p-1
+            shadow-2xl
+            backdrop-blur-xl
+          "
+        >
+          <div className="px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground border-b border-border">
             {cat.label} Skills
           </div>
-          {cat.skills.map((s) => (
-            <div
-              key={s}
-              style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: "14px", color: "#1f2937", cursor: "default" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
-              onMouseLeave={e => (e.currentTarget.style.background = "white")}
+
+          {cat.skills.map((skill) => (
+            <DropdownMenu.Item
+              key={skill}
+              className="
+                flex cursor-default items-center
+                rounded-md px-3 py-2
+                font-mono text-sm
+                text-foreground
+                outline-none
+                transition-colors
+                hover:bg-primary/10
+                focus:bg-primary/10
+              "
             >
-              {s}
-            </div>
+              {skill}
+            </DropdownMenu.Item>
           ))}
-        </div>
-      )}
-    </div>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
 
 function Hero() {
-  const [openCategory, setOpenCategory] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
-  const skillsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (skillsRef.current && !skillsRef.current.contains(e.target as Node))
-        setOpenCategory(null);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   const handleMove = (e: React.MouseEvent) => {
     const el = ref.current;
@@ -163,7 +155,7 @@ function Hero() {
 
       <div className="relative mx-auto max-w-6xl px-6 pt-16 pb-20 md:pt-28 md:pb-28">
         <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:gap-16">
-          <div className="rise">
+          <div>
             <div className="flex flex-wrap items-center gap-2 font-mono text-[10px]">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-signal/30 bg-signal/5 px-2.5 py-1 text-signal">
                 <span className="h-1.5 w-1.5 rounded-full bg-signal pulse-dot" />
@@ -185,17 +177,10 @@ function Hero() {
               Cybersecurity &amp; Cloud Security Enthusiast
             </p>
 
-            <div className="relative mt-5" ref={skillsRef} style={{ zIndex: 100 }}>
-              <div className="flex flex-wrap gap-2">
-                {SKILL_CATEGORIES.map((cat) => (
-                  <SkillButton
-                    key={cat.label}
-                    cat={cat}
-                    isOpen={openCategory === cat.label}
-                    onToggle={() => setOpenCategory(openCategory === cat.label ? null : cat.label)}
-                  />
-                ))}
-              </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {SKILL_CATEGORIES.map((cat) => (
+                <SkillButton key={cat.label} cat={cat} />
+              ))}
             </div>
 
             <p className="mt-40 max-w-xl text-base leading-relaxed text-muted-foreground">
