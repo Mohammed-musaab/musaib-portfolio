@@ -123,28 +123,31 @@ function Hero() {
               Cybersecurity &amp; Cloud Security Enthusiast
             </p>
 
-            <div className="relative mt-5" ref={skillsRef}>
+            <div className="relative mt-5" ref={skillsRef} style={{ zIndex: 100 }}>
               <div className="flex flex-wrap gap-2">
                 {SKILL_CATEGORIES.map((cat) => (
-                  <div key={cat.label} className="relative">
+                  <div key={cat.label} style={{ position: "relative", zIndex: 100 }}>
                     <button
-                      onClick={() => setOpenCategory(openCategory === cat.label ? null : cat.label)}
+                      onClick={(e) => { e.stopPropagation(); setOpenCategory(openCategory === cat.label ? null : cat.label); }}
                       className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 font-mono text-sm transition-all duration-300 hover:-translate-y-0.5"
                       style={{
-                        border: openCategory === cat.label ? "1px solid #0EA5E9" : "1px solid rgba(14,165,233,0.4)",
-                        color: openCategory === cat.label ? "#FFFFFF" : "#0EA5E9",
-                        background: openCategory === cat.label ? "#0EA5E9" : "transparent",
-                        boxShadow: openCategory === cat.label ? "0 0 20px rgba(14,165,233,0.25)" : "none",
+                        border: openCategory === cat.label ? "1px solid #8987f4" : "1px solid rgba(137,135,244,0.4)",
+                        color: openCategory === cat.label ? "#0d0e12" : "#8987f4",
+                        background: openCategory === cat.label ? "#8987f4" : "transparent",
+                        boxShadow: openCategory === cat.label ? "0 0 20px rgba(137,135,244,0.25)" : "none",
                       }}
                     >
                       {cat.label}
                       <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openCategory === cat.label ? "rotate-180" : ""}`} />
                     </button>
                     {openCategory === cat.label && (
-                      <div className="absolute left-0 top-full z-50 mt-2 min-w-[180px] rounded-lg border border-gray-200 bg-white shadow-xl overflow-hidden">
-                        <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-gray-400 border-b border-gray-100 bg-gray-50">{cat.label} Skills</div>
+                      <div style={{ position: "fixed", zIndex: 9999, marginTop: "4px", minWidth: "180px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "white", boxShadow: "0 10px 40px rgba(0,0,0,0.15)", overflow: "hidden" }}>
+                        <div style={{ padding: "6px 12px", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9ca3af", borderBottom: "1px solid #f3f4f6", background: "#f9fafb" }}>{cat.label} Skills</div>
                         {cat.skills.map((s) => (
-                          <div key={s} className="px-4 py-2.5 font-mono text-sm text-gray-800 hover:bg-blue-50 hover:text-[#0EA5E9] transition-colors cursor-default">
+                          <div key={s} style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: "14px", color: "#1f2937", cursor: "default", transition: "background 0.15s" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "white")}
+                          >
                             {s}
                           </div>
                         ))}
